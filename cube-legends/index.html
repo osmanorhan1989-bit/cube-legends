@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#03040a">
+<link rel="manifest" href="manifest.json">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<title>CUBE LEGENDS - SPACE by YUSF</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap');
+
+:root {
+  --gold:   #ffd700;
+  --cyan:   #00f5ff;
+  --purple: #bf00ff;
+  --green:  #00ff88;
+  --red:    #ff3355;
+  --orange: #ff8800;
+  --bg:     #03040a;
+  --panel:  rgba(5,8,20,0.97);
+}
+
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+
+html,body{
+  background:var(--bg);
+  height:100%;
+  overflow:hidden;
+  touch-action:none;
+}
+
+body{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-family:'Orbitron',monospace;
+  overflow:hidden;
+}
+
+.scanlines{
+  position:fixed;inset:0;
+  background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.08) 3px,rgba(0,0,0,0.08) 4px);
+  pointer-events:none;z-index:200;
+}
+
+.layout{display:flex;gap:10px;align-items:flex-start;}
+
+/* ── PANELS ── */
+.panel{width:190px;display:flex;flex-direction:column;gap:8px;}
+
+.card{
+  background:var(--panel);
+  border:1px solid rgba(0,245,255,0.15);
+  padding:10px 12px;
+  position:relative;overflow:hidden;
+}
+.card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--cyan),transparent);
+}
+.card-title{
+  font-size:5.5px;color:var(--cyan);letter-spacing:2px;margin-bottom:8px;
+  text-shadow:0 0 8px var(--cyan);font-family:'Share Tech Mono',monospace;
+}
+
+/* LEVEL BADGE */
+.level-badge{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:10px;gap:3px;
+  border:2px solid var(--cyan);
+  background:rgba(0,245,255,0.04);
+  box-shadow:0 0 20px rgba(0,245,255,0.15),inset 0 0 20px rgba(0,245,255,0.02);
+  margin-bottom:6px;
+}
+.level-num{font-size:28px;font-weight:900;color:var(--cyan);text-shadow:0 0 20px var(--cyan),0 0 40px var(--cyan);line-height:1;}
+.level-lbl{font-size:5px;color:rgba(0,245,255,0.6);letter-spacing:3px;}
+
+/* XP BAR */
+.xp-wrap{
+  background:rgba(0,245,255,0.06);border:1px solid rgba(0,245,255,0.15);
+  height:7px;margin-top:4px;position:relative;overflow:hidden;
+}
+.xp-fill{height:100%;background:linear-gradient(90deg,var(--cyan),var(--purple));box-shadow:0 0 8px var(--cyan);transition:width 0.3s;}
+.xp-txt{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:4px;color:#fff;font-family:'Share Tech Mono',monospace;}
+
+/* STAT */
+.stat-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;}
+.stat-lbl{font-size:5px;color:#555;font-family:'Share Tech Mono',monospace;letter-spacing:1px;}
+.stat-val{font-size:7px;}
+.c-cyan  {color:var(--cyan);  text-shadow:0 0 6px var(--cyan);}
+.c-gold  {color:var(--gold);  text-shadow:0 0 6px var(--gold);}
+.c-green {color:var(--green); text-shadow:0 0 6px var(--green);}
+.c-purple{color:var(--purple);text-shadow:0 0 6px var(--purple);}
+.c-white {color:#fff;}
+
+/* SKIN GRID */
+.skin-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;}
+.skin-card{
+  aspect-ratio:1;border:1px solid rgba(0,245,255,0.2);
+  background:rgba(0,245,255,0.03);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:3px;cursor:pointer;transition:all 0.15s;position:relative;padding:4px;
+}
+.skin-card:hover:not(.locked){border-color:var(--cyan);background:rgba(0,245,255,0.1);box-shadow:0 0 10px rgba(0,245,255,0.3);}
+.skin-card.active{border-color:var(--gold);box-shadow:0 0 12px rgba(255,215,0,0.4);}
+.skin-card.locked{opacity:0.4;cursor:not-allowed;}
+.skin-canvas{width:28px;height:28px;}
+.skin-name{font-size:4px;color:#888;font-family:'Share Tech Mono',monospace;text-align:center;}
+.skin-req{font-size:3.5px;color:var(--gold);font-family:'Share Tech Mono',monospace;}
+.skin-lock{font-size:10px;position:absolute;top:2px;right:3px;}
+
+/* SHOP BTN */
+.shop-btn{
+  font-family:'Orbitron',monospace;font-size:5.5px;
+  width:100%;padding:7px 4px;
+  background:rgba(0,245,255,0.05);border:1px solid rgba(0,245,255,0.3);
+  color:var(--cyan);cursor:pointer;letter-spacing:1px;transition:all 0.15s;margin-bottom:4px;
+}
+.shop-btn:hover:not(:disabled){background:rgba(0,245,255,0.15);box-shadow:0 0 12px rgba(0,245,255,0.3);color:#fff;}
+.shop-btn:disabled{opacity:0.3;cursor:not-allowed;}
+.shop-btn.owned{border-color:var(--green);color:var(--green);}
+.shop-btn .cost{font-size:4.5px;color:var(--gold);display:block;margin-top:2px;font-family:'Share Tech Mono',monospace;}
+
+/* BUFF DOT */
+.buff-item{display:flex;align-items:center;gap:6px;margin-bottom:5px;font-size:5px;color:#444;font-family:'Share Tech Mono',monospace;letter-spacing:1px;}
+.buff-item.on{color:var(--green);}
+.bdot{width:5px;height:5px;border-radius:50%;background:#222;flex-shrink:0;}
+.bdot.on{background:var(--green);box-shadow:0 0 6px var(--green);}
+
+/* GAME COL */
+.game-col{display:flex;flex-direction:column;gap:8px;align-items:center;}
+
+canvas{
+  display:block;
+  border:1px solid rgba(0,245,255,0.25);
+  box-shadow:0 0 30px rgba(0,245,255,0.1),0 0 60px rgba(191,0,255,0.08);
+}
+
+.center-card{
+  position:relative;width:380px;padding:8px;
+  display:flex;flex-direction:column;align-items:center;
+  background:linear-gradient(180deg,rgba(2,3,10,0.9),rgba(5,8,20,0.95));
+  border:1px solid rgba(0,245,255,0.08);
+  box-shadow:0 0 30px rgba(0,245,255,0.03);
+}
+
+#touchGlow{
+  position:absolute;inset:0;pointer-events:none;opacity:0;
+  transition:opacity 0.24s ease-out;
+  background:radial-gradient(circle at center,rgba(0,245,255,0.22),transparent 40%);
+}
+#touchGlow.show{opacity:1;}
+
+.play-overlay{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  pointer-events:none;z-index:50;
+}
+.play-overlay button{
+  pointer-events:auto;background:rgba(0,245,255,0.14);
+  border:1px solid rgba(0,245,255,0.45);color:#fff;
+  font-family:'Orbitron',monospace;font-size:16px;padding:14px 28px;
+  letter-spacing:1px;cursor:pointer;backdrop-filter:blur(8px);transition:all 0.2s ease;
+}
+.play-overlay button:hover{background:rgba(0,245,255,0.22);}
+.play-overlay.hidden{display:none;}
+
+/* BOTTOM HUD */
+.bhud{
+  display:flex;justify-content:space-between;align-items:center;
+  width:380px;padding:6px 14px;
+  background:var(--panel);border:1px solid rgba(0,245,255,0.15);
+}
+.hi{text-align:center;}
+.hl{font-size:4.5px;color:#444;letter-spacing:1px;font-family:'Share Tech Mono',monospace;margin-bottom:2px;}
+.hv{font-size:9px;font-weight:700;}
+
+.restart-btn{
+  font-family:'Orbitron',monospace;font-size:6px;font-weight:700;
+  background:var(--cyan);color:#000;border:none;padding:7px 16px;
+  cursor:pointer;letter-spacing:1px;box-shadow:0 0 16px rgba(0,245,255,0.5);transition:all 0.1s;
+}
+.restart-btn:hover{background:#fff;box-shadow:0 0 24px #fff;}
+
+/* SAVE indicator */
+#saveInd{
+  position:fixed;bottom:14px;right:14px;
+  font-size:5px;color:var(--green);font-family:'Share Tech Mono',monospace;
+  opacity:0;transition:opacity 0.4s;z-index:300;letter-spacing:1px;
+  background:rgba(0,0,0,0.8);border:1px solid rgba(0,255,136,0.3);padding:4px 8px;
+}
+#saveInd.show{opacity:1;}
+
+/* TOAST */
+#toast{
+  position:fixed;top:18px;left:50%;transform:translateX(-50%);
+  font-size:8px;font-weight:700;color:var(--cyan);text-shadow:0 0 12px var(--cyan);
+  background:rgba(0,0,0,0.9);border:1px solid var(--cyan);
+  padding:8px 20px;z-index:300;opacity:0;pointer-events:none;transition:opacity 0.3s;
+  white-space:nowrap;font-family:'Share Tech Mono',monospace;
+}
+#toast.show{opacity:1;}
+
+#lvflash{
+  position:fixed;inset:0;
+  background:radial-gradient(circle,rgba(0,245,255,0.25),transparent 70%);
+  pointer-events:none;z-index:150;opacity:0;transition:opacity 0.1s;
+}
+#lvflash.show{opacity:1;}
+
+/* ── MOBILE ── */
+@media(max-width:900px){
+  html,body{height:100%;overflow:hidden;}
+  body{padding:0;align-items:stretch;justify-content:stretch;}
+  .layout{flex-direction:column;gap:0;align-items:stretch;height:100vh;}
+  .panel{display:none;}
+  .game-col{width:100%;flex:1;gap:0;}
+  .center-card{width:100%;flex:1;padding:6px;border-radius:0;border:none;}
+  .center-card canvas{
+    width:100% !important;
+    flex:1;
+    min-height:0;
+  }
+  .bhud{
+    width:100%;padding:8px 12px;
+    border-left:none;border-right:none;border-bottom:none;
+  }
+  .restart-btn{width:auto;padding:8px 14px;font-size:7px;}
+  #toast{font-size:11px;top:10px;}
+  .scanlines{display:none;}
+  .play-overlay button{font-size:18px;padding:16px 32px;}
+}
+</style>
+</head>
+<body>
+<div class="scanlines"></div>
+<div id="lvflash"></div>
+<div id="toast"></div>
+<div id="saveInd">💾 SAVED</div>
+
+<div class="layout">
+
+  <!-- LEFT PANEL -->
+  <div class="panel">
+    <div class="card">
+      <div class="card-title">// PILOT RANK</div>
+      <div class="level-badge">
+        <div class="level-num" id="lvNum">1</div>
+        <div class="level-lbl">LEVEL</div>
+      </div>
+      <div class="stat-row"><span class="stat-lbl">XP</span><span class="stat-val c-cyan" id="xpVal">0 / 10</span></div>
+      <div class="xp-wrap">
+        <div class="xp-fill" id="xpBar" style="width:0%"></div>
+        <div class="xp-txt" id="xpPct">0%</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">// STATS</div>
+      <div class="stat-row"><span class="stat-lbl">COINS</span><span class="stat-val c-gold"  id="coinStat">0</span></div>
+      <div class="stat-row"><span class="stat-lbl">TOTAL XP</span><span class="stat-val c-cyan" id="totalXp">0</span></div>
+      <div class="stat-row"><span class="stat-lbl">BEST</span><span class="stat-val c-white" id="bestStat">0</span></div>
+      <div class="stat-row"><span class="stat-lbl">RUNS</span><span class="stat-val c-white" id="runsStat">0</span></div>
+      <div class="stat-row"><span class="stat-lbl">MULT</span><span class="stat-val c-green" id="multStat">x1</span></div>
+      <div class="stat-row"><span class="stat-lbl">SPEED</span><span class="stat-val c-purple" id="speedStat">2.0x</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title">// ACTIVE BUFFS</div>
+      <div class="buff-item" id="bf-gravity"><div class="bdot" id="bd-gravity"></div>LOW GRAVITY</div>
+      <div class="buff-item" id="bf-shield" ><div class="bdot" id="bd-shield"></div>SHIELD</div>
+      <div class="buff-item" id="bf-slow"   ><div class="bdot" id="bd-slow"></div>SLOW WALLS</div>
+      <div class="buff-item" id="bf-wide"   ><div class="bdot" id="bd-wide"></div>WIDE GAP</div>
+      <div class="buff-item" id="bf-coin2"  ><div class="bdot" id="bd-coin2"></div>COIN x2</div>
+      <div class="buff-item" id="bf-coin3"  ><div class="bdot" id="bd-coin3"></div>COIN x3</div>
+    </div>
+  </div>
+
+  <!-- CENTER -->
+  <div class="game-col">
+    <div class="card center-card">
+      <canvas id="gc"></canvas>
+      <div id="touchGlow"></div>
+      <div id="playOverlay" class="play-overlay"><button id="playBtn">▶ PLAY</button></div>
+      <div class="bhud">
+        <div class="hi"><div class="hl">SCORE</div><div class="hv c-white" id="scoreHud">0</div></div>
+        <div class="hi"><div class="hl">COINS</div><div class="hv c-gold"  id="coinHud">0</div></div>
+        <div class="hi"><div class="hl">XP GAIN</div><div class="hv c-cyan" id="xpHud">+0</div></div>
+        <button class="restart-btn" onclick="restartGame()">↺ RETRY</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="panel">
+    <div class="card">
+      <div class="card-title">// SKINS</div>
+      <div class="skin-grid" id="skinGrid"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">// UPGRADES</div>
+      <button class="shop-btn" id="btn-gravity" onclick="buy('gravity')">⚡ LOW GRAVITY<span class="cost" id="c-gravity">💰 30</span></button>
+      <button class="shop-btn" id="btn-shield"  onclick="buy('shield')" >🛡 SHIELD<span class="cost" id="c-shield">💰 50</span></button>
+      <button class="shop-btn" id="btn-slow"    onclick="buy('slow')"   >🌀 SLOW WALLS<span class="cost" id="c-slow">💰 40</span></button>
+      <button class="shop-btn" id="btn-wide"    onclick="buy('wide')"   >↕ WIDE GAP<span class="cost" id="c-wide">💰 35</span></button>
+      <button class="shop-btn" id="btn-coin2"   onclick="buy('coin2')"  >💰 COIN x2<span class="cost" id="c-coin2">💰 25</span></button>
+      <button class="shop-btn" id="btn-coin3"   onclick="buy('coin3')"  >💎 COIN x3<span class="cost" id="c-coin3">💰 80</span></button>
+    </div>
+    <div class="card">
+      <div class="card-title">// INFO</div>
+      <div style="font-size:5px;color:#555;line-height:2;font-family:'Share Tech Mono',monospace">
+        SPACE / TAP = THRUST<br>
+        PASS WALL = +1 XP +COIN<br>
+        LEVEL UP = +5 COIN<br>
+        <span style="color:var(--gold)">LV 99→100 = +100!</span><br>
+        <span style="color:var(--purple)">SKINS UNLOCK BY LV</span>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /.layout -->
+
+<script>
+'use strict';
+
+// ══════════════════════════════════════════════
+// SKINS
+// ══════════════════════════════════════════════
+const SKINS = [
+  {id:'cube',    name:'CUBE',    unlockLv:1,   color:'#00f5ff',           glow:'#00f5ff'},
+  {id:'fire',    name:'FIRE',    unlockLv:5,   color:'#ff8800',           glow:'#ff4400'},
+  {id:'plasma',  name:'PLASMA',  unlockLv:10,  color:'#bf00ff',           glow:'#ff00ff'},
+  {id:'gold',    name:'GOLD',    unlockLv:20,  color:'#ffd700',           glow:'#ffaa00'},
+  {id:'ghost',   name:'GHOST',   unlockLv:30,  color:'rgba(180,220,255,0.7)', glow:'#88aaff'},
+  {id:'storm',   name:'STORM',   unlockLv:50,  color:'#00ff88',           glow:'#00ffaa'},
+  {id:'dark',    name:'VOID',    unlockLv:70,  color:'#220033',           glow:'#9900ff'},
+  {id:'rainbow', name:'RAINBOW', unlockLv:99,  color:'rainbow',           glow:'#ffffff'},
+  {id:'max',     name:'LEGEND',  unlockLv:100, color:'#ffffff',           glow:'#ffd700'},
+];
+
+// ══════════════════════════════════════════════
+// SAVE / LOAD  (localStorage)
+// ══════════════════════════════════════════════
+const SAVE_KEY = 'cubelegends_v2';
+
+function defaultRPG(){
+  return {
+    coins:0, totalXp:0, level:1, xp:0, best:0, runs:0, coinMult:1,
+    activeSkin:'cube',
+    upgrades:{gravity:false,shield:false,slow:false,wide:false,coin2:false,coin3:false}
+  };
+}
+
+function saveGame(){
+  try{
+    localStorage.setItem(SAVE_KEY, JSON.stringify(RPG));
+    const el = document.getElementById('saveInd');
+    if(el){ el.classList.add('show'); clearTimeout(el._t); el._t = setTimeout(()=>el.classList.remove('show'), 1400); }
+  }catch(e){}
+}
+
+function loadGame(){
+  try{
+    const raw = localStorage.getItem(SAVE_KEY);
+    if(!raw) return defaultRPG();
+    const d = JSON.parse(raw);
+    const def = defaultRPG();
+    // merge so new keys always exist
+    return {
+      ...def,
+      ...d,
+      upgrades: {...def.upgrades, ...(d.upgrades||{})}
+    };
+  }catch(e){ return defaultRPG(); }
+}
+
+// ══════════════════════════════════════════════
+// RPG STATE
+// ══════════════════════════════════════════════
+let RPG = loadGame();
+
+// Recalculate coinMult from upgrades (safe after load)
+function recalcCoinMult(){
+  RPG.coinMult = 1;
+  if(RPG.upgrades.coin3) RPG.coinMult = 3;
+  else if(RPG.upgrades.coin2) RPG.coinMult = 2;
+}
+recalcCoinMult();
+
+function xpNeeded(lv){ return lv >= 100 ? Infinity : Math.floor(10 + lv * 4); }
+
+function addXP(n){
+  if(RPG.level >= 100) return;
+  RPG.totalXp += n; RPG.xp += n;
+  let leveled = false;
+  while(RPG.xp >= xpNeeded(RPG.level) && RPG.level < 100){
+    RPG.xp -= xpNeeded(RPG.level);
+    const was = RPG.level; RPG.level++;
+    onLevelUp(was);
+    leveled = true;
+  }
+  if(!leveled) updateUI();
+}
+
+function addCoins(n){
+  const r = n * RPG.coinMult;
+  RPG.coins += r; sessionCoins += r;
+  updateHudLive(); return r;
+}
+
+function onLevelUp(prev){
+  RPG.coins += 5; sessionCoins += 5;
+  if(prev === 99){ RPG.coins += 100; sessionCoins += 100; toast('🏆 MAX LEVEL! +100 COIN!', 3500); }
+  else toast(`⬆️ LEVEL ${RPG.level}! +5 COIN`, 1800);
+  const fl = document.getElementById('lvflash');
+  fl.classList.add('show'); setTimeout(()=>fl.classList.remove('show'), 400);
+  applyUpgrades();
+  updateUI();
+  buildSkinGrid();
+  saveGame();
+}
+
+function buy(k){
+  const cost = {gravity:30,shield:50,slow:40,wide:35,coin2:25,coin3:80}[k];
+  if(RPG.coins < cost){ toast('❌ NOT ENOUGH COINS!', 1500); return; }
+  if(RPG.upgrades[k]){ toast('✅ ALREADY ACTIVE', 1200); return; }
+  RPG.coins -= cost; RPG.upgrades[k] = true;
+  recalcCoinMult();
+  toast('✅ UPGRADE ACTIVATED!', 1500);
+  applyUpgrades();
+  updateUI();
+  saveGame();
+}
+
+function selectSkin(id){
+  const s = SKINS.find(x => x.id === id);
+  if(!s || RPG.level < s.unlockLv){ toast(`🔒 NEED LV ${s.unlockLv}`, 1500); return; }
+  RPG.activeSkin = id;
+  buildSkinGrid();
+  updateUI();
+  toast('✨ SKIN CHANGED!', 1200);
+  saveGame();
+}
+
+// ══════════════════════════════════════════════
+// UI
+// ══════════════════════════════════════════════
+function updateUI(){
+  document.getElementById('lvNum').textContent = RPG.level;
+  const need = xpNeeded(RPG.level);
+  const pct  = RPG.level >= 100 ? 100 : Math.min(100, Math.floor(RPG.xp / need * 100));
+  document.getElementById('xpVal').textContent  = RPG.level >= 100 ? 'MAX' : `${RPG.xp}/${need}`;
+  document.getElementById('xpBar').style.width  = pct + '%';
+  document.getElementById('xpPct').textContent  = pct + '%';
+  document.getElementById('coinStat').textContent = RPG.coins;
+  document.getElementById('totalXp').textContent  = RPG.totalXp;
+  document.getElementById('bestStat').textContent  = RPG.best;
+  document.getElementById('runsStat').textContent  = RPG.runs;
+  document.getElementById('multStat').textContent  = 'x' + RPG.coinMult;
+  document.getElementById('speedStat').textContent = WALL_SPEED.toFixed(1) + 'x';
+
+  const costs = {gravity:30,shield:50,slow:40,wide:35,coin2:25,coin3:80};
+  Object.keys(costs).forEach(k=>{
+    const btn    = document.getElementById('btn-'+k);
+    const costEl = document.getElementById('c-'+k);
+    if(!btn) return;
+    if(RPG.upgrades[k]){ btn.classList.add('owned'); costEl.textContent='✅ ACTIVE'; btn.disabled=false; }
+    else{ btn.classList.remove('owned'); costEl.textContent='💰 '+costs[k]; btn.disabled=(RPG.coins<costs[k]); }
+  });
+
+  Object.keys(RPG.upgrades).forEach(k=>{
+    document.getElementById('bf-'+k)?.classList.toggle('on', RPG.upgrades[k]);
+    document.getElementById('bd-'+k)?.classList.toggle('on', RPG.upgrades[k]);
+  });
+
+  document.getElementById('coinHud').textContent = RPG.coins;
+  document.getElementById('xpHud').textContent   = '+' + sessionXp;
+  updatePlayOverlay();
+}
+
+function buildSkinGrid(){
+  const grid = document.getElementById('skinGrid');
+  grid.innerHTML = '';
+  SKINS.forEach(s=>{
+    const locked = RPG.level < s.unlockLv;
+    const active = RPG.activeSkin === s.id;
+    const div = document.createElement('div');
+    div.className = 'skin-card' + (locked ? ' locked' : '') + (active ? ' active' : '');
+    div.onclick = ()=>selectSkin(s.id);
+    const cv = document.createElement('canvas');
+    cv.width = 28; cv.height = 28; cv.className = 'skin-canvas';
+    drawSkinPreview(cv, s, locked);
+    div.appendChild(cv);
+    const nm = document.createElement('div');
+    nm.className = 'skin-name'; nm.textContent = s.name; div.appendChild(nm);
+    if(locked){
+      const lk = document.createElement('div'); lk.className='skin-lock'; lk.textContent='🔒'; div.appendChild(lk);
+      const rq = document.createElement('div'); rq.className='skin-req';  rq.textContent='LV'+s.unlockLv; div.appendChild(rq);
+    }
+    grid.appendChild(div);
+  });
+}
+
+function drawSkinPreview(cv, skin, locked){
+  const c = cv.getContext('2d');
+  if(locked){ c.fillStyle='#222'; c.fillRect(5,5,18,18); return; }
+  drawCubeOnCtx(c, 14, 14, 18, skin, 0);
+}
+
+let toastTmr = null;
+function toast(msg, dur=2000){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  if(toastTmr) clearTimeout(toastTmr);
+  toastTmr = setTimeout(()=>t.classList.remove('show'), dur);
+}
+
+// ══════════════════════════════════════════════
+// CANVAS + RESIZE
+// ══════════════════════════════════════════════
+const canvas = document.getElementById('gc');
+const ctx    = canvas.getContext('2d');
+let W = 380, H = 500;
+
+function resizeCanvas(){
+  const rect = canvas.getBoundingClientRect();
+  if(rect.width < 1 || rect.height < 1) return;
+  const dpr = window.devicePixelRatio || 1;
+  const cw  = Math.round(rect.width);
+  const ch  = Math.round(rect.height);
+  canvas.width  = cw * dpr;
+  canvas.height = ch * dpr;
+  canvas.style.width  = cw + 'px';
+  canvas.style.height = ch + 'px';
+  try{ ctx.setTransform(dpr, 0, 0, dpr, 0, 0); }catch(e){}
+  W = cw; H = ch;
+}
+
+window.addEventListener('resize', ()=>{
+  resizeCanvas();
+  // Rebuild background elements for new size
+  if(stars)   stars   = makeStars();
+  if(nebulas) nebulas = makeNebulas();
+});
+
+// ══════════════════════════════════════════════
+// GAME CONSTANTS & STATE
+// ══════════════════════════════════════════════
+let WALL_SPEED   = 2.0;
+let GAP          = 155;
+const WALL_W     = 48;
+const WALL_INTERVAL = 90;
+
+let gameState   = 'idle';
+let score       = 0;
+let sessionCoins= 0;
+let sessionXp   = 0;
+
+let cube, walls, particles, stars, nebulas, groundOff, wallTimer, flashTimer, shieldActive;
+let rainbowHue  = 0;
+let animFrame;
+
+// Auto-save every 30 seconds during play
+let autoSaveInterval = null;
+
+// ══════════════════════════════════════════════
+// GAME OBJECTS
+// ══════════════════════════════════════════════
+function makeCube(){
+  return {
+    x: 85, y: H / 2,
+    vy: 0,
+    gravity: RPG.upgrades.gravity ? 0.18 : 0.32,
+    flapStr: -5.5,
+    size: 22,
+    angle: 0,
+    spin: 0,
+    trail: [],
+  };
+}
+
+function makeStars(){
+  return Array.from({length:80}, ()=>({
+    x: Math.random()*W, y: Math.random()*H,
+    r: Math.random()*1.6+0.2,
+    tw: Math.random()*Math.PI*2,
+    sp: Math.random()*0.02+0.005,
+    color: ['#ffffff','#aaddff','#ffaaee','#aaffee'][Math.floor(Math.random()*4)],
+  }));
+}
+
+function makeNebulas(){
+  return Array.from({length:4}, ()=>({
+    x: Math.random()*W, y: Math.random()*H,
+    r: Math.random()*80+40,
+    color: ['rgba(0,100,255,0.04)','rgba(150,0,255,0.04)','rgba(0,200,150,0.04)','rgba(255,50,100,0.04)'][Math.floor(Math.random()*4)],
+  }));
+}
+
+// ══════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════
+function initGame(){
+  resizeCanvas();
+  cube       = makeCube();
+  walls      = []; particles = [];
+  stars      = makeStars();
+  nebulas    = makeNebulas();
+  groundOff  = 0; wallTimer = 0; flashTimer = 0;
+  score      = 0; sessionCoins = 0; sessionXp = 0;
+  shieldActive = RPG.upgrades.shield;
+  rainbowHue = 0;
+  applyUpgrades();
+  updateHudLive();
+}
+
+function applyUpgrades(){
+  if(cube) cube.gravity = RPG.upgrades.gravity ? 0.18 : 0.32;
+  shieldActive = !!RPG.upgrades.shield;
+  // base speed + level bonus (capped at +3)
+  const base      = RPG.upgrades.slow ? 1.2 : 2.0;
+  const levelBoost= Math.min(3.0, Math.floor((RPG.level - 1) / 5) * 0.15);
+  WALL_SPEED = parseFloat((base + levelBoost).toFixed(2));
+  GAP = RPG.upgrades.wide ? 190 : 155;
+}
+
+// ══════════════════════════════════════════════
+// INPUT
+// ══════════════════════════════════════════════
+function thrust(e){
+  if(e) e.preventDefault();
+  if(gameState === 'dead') return;
+  if(gameState === 'idle'){
+    gameState = 'playing';
+    if(autoSaveInterval) clearInterval(autoSaveInterval);
+    autoSaveInterval = setInterval(saveGame, 30000);
+  }
+  cube.vy      = cube.flapStr;
+  cube.spin   += 0.3;
+  spawnP(cube.x, cube.y + cube.size/2, 8, 'thrust');
+  touchFeedback();
+  updatePlayOverlay();
+}
+
+canvas.addEventListener('click',     thrust);
+canvas.addEventListener('touchstart', e=>{ e.preventDefault(); thrust(e); }, {passive:false});
+document.addEventListener('keydown',  e=>{
+  if(e.code==='Space'||e.code==='ArrowUp'){ e.preventDefault(); thrust(e); }
+});
+
+// Prevent page scroll during game
+document.addEventListener('touchmove', e=>e.preventDefault(), {passive:false});
+
+document.getElementById('playBtn').addEventListener('click',    thrust);
+document.getElementById('playBtn').addEventListener('touchstart', e=>{ e.preventDefault(); thrust(e); }, {passive:false});
+
+function touchFeedback(){
+  const tg = document.getElementById('touchGlow');
+  tg.classList.add('show'); clearTimeout(tg._t);
+  tg._t = setTimeout(()=>tg.classList.remove('show'), 240);
+}
+
+function restartGame(){
+  cancelAnimationFrame(animFrame);
+  clearInterval(autoSaveInterval);
+  gameState = 'idle';
+  initGame();
+  updatePlayOverlay();
+  loop();
+}
+
+function updatePlayOverlay(){
+  const o = document.getElementById('playOverlay');
+  if(o) o.classList.toggle('hidden', gameState !== 'idle');
+}
+
+// ══════════════════════════════════════════════
+// WALLS
+// ══════════════════════════════════════════════
+function addWall(){
+  const min    = 70;
+  const maxGap = H - 80 - GAP - min;
+  const max    = Math.max(min, min + maxGap);
+  const topH   = (max <= min) ? min : Math.random()*(max-min)+min;
+  const botY   = topH + GAP;
+  const botH   = Math.max(0, H - 80 - botY);
+  walls.push({x:W+10, topH, botY, botH, scored:false});
+}
+
+function hitTest(c, w){
+  const hs = c.size/2 - 3;
+  const bx = c.x-hs, by = c.y-hs, bw = c.size-6, bh = c.size-6;
+  if(bx < w.x+WALL_W && bx+bw > w.x && by < w.topH)       return true;
+  if(bx < w.x+WALL_W && bx+bw > w.x && by+bh > w.botY)    return true;
+  return false;
+}
+
+// ══════════════════════════════════════════════
+// DEATH
+// ══════════════════════════════════════════════
+function die(){
+  if(shieldActive){
+    shieldActive = false;
+    toast('🛡️ SHIELD PROTECTED!', 1500);
+    cube.vy = -5;
+    spawnP(cube.x, cube.y, 25, 'shield');
+    return;
+  }
+  gameState = 'dead';
+  clearInterval(autoSaveInterval);
+  RPG.runs++;
+  if(score > RPG.best) RPG.best = score;
+  flashTimer = 10;
+  spawnP(cube.x, cube.y, 40, 'death');
+  updateUI();
+  saveGame();
+}
+
+// ══════════════════════════════════════════════
+// PARTICLES
+// ══════════════════════════════════════════════
+function spawnP(x, y, n, type){
+  const palettes = {
+    thrust: ['#00f5ff','#ffffff','#8800ff'],
+    death:  ['#ff3355','#ff8800','#ffd700','#fff'],
+    score:  ['#00f5ff','#ffd700','#00ff88','#bf00ff'],
+    shield: ['#00f5ff','#ffffff','#0088ff'],
+    coin:   ['#ffd700','#ffaa00'],
+  };
+  const cols = palettes[type] || ['#fff'];
+  for(let i=0; i<n; i++){
+    const ang = Math.random()*Math.PI*2;
+    const spd = Math.random()*7+1;
+    particles.push({
+      x, y,
+      vx: Math.cos(ang)*spd*(type==='thrust'?0.6:1),
+      vy: Math.sin(ang)*spd*(type==='thrust'?0.5:1) - (type==='thrust'?2:0),
+      life: 1, decay: type==='thrust' ? 0.1 : 0.035,
+      color: cols[Math.floor(Math.random()*cols.length)],
+      r: Math.random()*5+1,
+    });
+  }
+}
+
+// ══════════════════════════════════════════════
+// UPDATE LOOP
+// ══════════════════════════════════════════════
+function update(){
+  rainbowHue = (rainbowHue + 2) % 360;
+
+  if(gameState === 'playing'){
+    cube.vy += cube.gravity;
+    cube.y  += cube.vy;
+    cube.angle += cube.vy * 0.04;
+    cube.spin  *= 0.95;
+
+    cube.trail.unshift({x:cube.x, y:cube.y, angle:cube.angle});
+    if(cube.trail.length > 10) cube.trail.pop();
+
+    wallTimer++;
+    if(wallTimer >= WALL_INTERVAL){ addWall(); wallTimer = 0; }
+
+    walls.forEach(w => w.x -= WALL_SPEED);
+    walls = walls.filter(w => w.x + WALL_W > -10);
+
+    walls.forEach(w=>{
+      if(!w.scored && w.x + WALL_W < cube.x){
+        w.scored = true; score++;
+        sessionXp++;
+        addXP(1);
+        addCoins(1);
+        spawnP(cube.x, cube.y-20, 10, 'score');
+        updateHudLive();
+      }
+    });
+
+    groundOff = ((groundOff + WALL_SPEED) % 40 + 40) % 40;
+
+    // Floor collision
+    if(cube.y + cube.size/2 >= H - 70){ cube.y = H-70-cube.size/2; die(); }
+    // Ceiling
+    if(cube.y - cube.size/2 <= 0){ cube.y = cube.size/2; cube.vy = 0; }
+    // Wall collision
+    walls.forEach(w=>{ if(hitTest(cube, w)) die(); });
+  }
+
+  particles.forEach(p=>{ p.x+=p.vx; p.y+=p.vy; p.vy+=0.1; p.life-=p.decay; });
+  particles = particles.filter(p=>p.life>0);
+}
+
+// ══════════════════════════════════════════════
+// DRAW HELPERS
+// ══════════════════════════════════════════════
+function getSkinData(){
+  const s = SKINS.find(x => x.id === RPG.activeSkin) || SKINS[0];
+  let color = s.color;
+  if(color === 'rainbow') color = `hsl(${rainbowHue},100%,60%)`;
+  return {color, glow:s.glow};
+}
+
+function drawCubeOnCtx(c, cx, cy, size, skin, angle){
+  c.save();
+  c.translate(cx, cy);
+  c.rotate(angle || 0);
+  const hs = size/2;
+  let col = skin.color;
+  if(col === 'rainbow') col = `hsl(${rainbowHue},100%,60%)`;
+
+  c.shadowColor = skin.glow; c.shadowBlur = 18;
+  c.fillStyle   = col;
+  c.fillRect(-hs, -hs, size, size);
+
+  c.shadowBlur  = 0;
+  c.fillStyle   = 'rgba(255,255,255,0.18)';
+  c.fillRect(-hs, -hs, size, size*0.35);
+  c.fillStyle   = 'rgba(255,255,255,0.08)';
+  c.fillRect(-hs, -hs, size*0.35, size);
+
+  c.strokeStyle = skin.glow; c.lineWidth = 1.5;
+  c.shadowColor = skin.glow; c.shadowBlur = 8;
+  c.strokeRect(-hs, -hs, size, size);
+
+  c.shadowBlur = 6; c.fillStyle = skin.glow;
+  [[-hs+3,-hs+3],[hs-3,-hs+3],[hs-3,hs-3],[-hs+3,hs-3]].forEach(([dx,dy])=>{
+    c.beginPath(); c.arc(dx, dy, 1.5, 0, Math.PI*2); c.fill();
+  });
+  c.restore();
+}
+
+// ══════════════════════════════════════════════
+// RENDER
+// ══════════════════════════════════════════════
+function drawBG(){
+  const g = ctx.createLinearGradient(0,0,0,H);
+  g.addColorStop(0,'#020308'); g.addColorStop(0.5,'#05080f'); g.addColorStop(1,'#030510');
+  ctx.fillStyle = g; ctx.fillRect(0,0,W,H);
+
+  nebulas.forEach(n=>{
+    const gr = ctx.createRadialGradient(n.x,n.y,0,n.x,n.y,n.r);
+    gr.addColorStop(0,n.color); gr.addColorStop(1,'transparent');
+    ctx.fillStyle = gr; ctx.fillRect(0,0,W,H);
+  });
+
+  stars.forEach(s=>{
+    s.tw += s.sp;
+    const a = 0.3+Math.sin(s.tw)*0.5;
+    ctx.save(); ctx.globalAlpha = a;
+    ctx.fillStyle = s.color; ctx.shadowColor = s.color; ctx.shadowBlur = 3;
+    ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI*2); ctx.fill();
+    ctx.restore();
+  });
+}
+
+function drawWall(w){
+  const x = Math.round(w.x);
+  const g1 = ctx.createLinearGradient(x,0,x+WALL_W,0);
+  g1.addColorStop(0,'#003344'); g1.addColorStop(0.5,'#005566'); g1.addColorStop(1,'#002233');
+  ctx.fillStyle = g1; ctx.fillRect(x,0,WALL_W,w.topH); ctx.fillRect(x,w.botY,WALL_W,w.botH);
+
+  ctx.save();
+  ctx.shadowColor='#00f5ff'; ctx.shadowBlur=12;
+  ctx.strokeStyle='#00f5ff'; ctx.lineWidth=1.5; ctx.globalAlpha=0.7;
+  ctx.strokeRect(x,0,WALL_W,w.topH);
+  ctx.strokeRect(x,w.botY,WALL_W,w.botH);
+  ctx.globalAlpha=1;
+  ctx.fillStyle='#00f5ff'; ctx.shadowBlur=14;
+  ctx.fillRect(x-3,w.topH-5,WALL_W+6,5);
+  ctx.fillRect(x-3,w.botY,  WALL_W+6,5);
+  ctx.globalAlpha=0.06; ctx.fillStyle='#00f5ff';
+  ctx.fillRect(x,w.topH,WALL_W,GAP);
+  ctx.restore();
+}
+
+function drawGround(){
+  const gY = H-70;
+  ctx.fillStyle='#020408'; ctx.fillRect(0,gY,W,70);
+  ctx.save();
+  ctx.strokeStyle='rgba(0,245,255,0.12)'; ctx.lineWidth=1;
+  for(let i=0; i<W+40; i+=40){
+    const ox = ((i - groundOff) % (W+40) + (W+40)) % (W+40);
+    ctx.beginPath(); ctx.moveTo(ox,gY); ctx.lineTo(ox,H); ctx.stroke();
+  }
+  ctx.strokeStyle='rgba(0,245,255,0.3)'; ctx.lineWidth=1.5;
+  ctx.beginPath(); ctx.moveTo(0,gY); ctx.lineTo(W,gY); ctx.stroke();
+  ctx.restore();
+}
+
+function drawCubeEntity(){
+  const sd = getSkinData();
+
+  // Trail
+  cube.trail.forEach((t,i)=>{
+    ctx.save(); ctx.globalAlpha=(1-i/10)*0.12;
+    ctx.translate(t.x,t.y); ctx.rotate(t.angle);
+    const hs = cube.size/2;
+    ctx.fillStyle = sd.color==='rainbow'?`hsl(${(rainbowHue+i*15)%360},100%,60%)`:sd.color;
+    ctx.fillRect(-hs,-hs,cube.size,cube.size);
+    ctx.restore();
+  });
+
+  // Shield ring
+  if(shieldActive){
+    ctx.save();
+    const pulse = 0.6+Math.sin(Date.now()*0.008)*0.4;
+    ctx.globalAlpha=pulse;
+    ctx.strokeStyle='#00f5ff'; ctx.lineWidth=2;
+    ctx.shadowColor='#00f5ff'; ctx.shadowBlur=20;
+    ctx.strokeRect(cube.x-cube.size/2-6,cube.y-cube.size/2-6,cube.size+12,cube.size+12);
+    ctx.restore();
+  }
+
+  drawCubeOnCtx(ctx, cube.x, cube.y, cube.size, sd, cube.angle);
+}
+
+function drawParticles(){
+  particles.forEach(p=>{
+    ctx.save(); ctx.globalAlpha=p.life;
+    ctx.fillStyle=p.color; ctx.shadowColor=p.color; ctx.shadowBlur=8;
+    ctx.beginPath(); ctx.arc(p.x,p.y,p.r*p.life,0,Math.PI*2); ctx.fill();
+    ctx.restore();
+  });
+}
+
+function drawFlash(){
+  if(flashTimer>0){
+    ctx.save(); ctx.globalAlpha=flashTimer/10*0.45;
+    ctx.fillStyle='#ff3355'; ctx.fillRect(0,0,W,H);
+    ctx.restore(); flashTimer--;
+  }
+}
+
+function drawOverlay(){
+  if(gameState==='idle'){
+    ctx.save();
+    ctx.fillStyle='rgba(2,3,10,0.55)'; ctx.fillRect(0,0,W,H);
+    ctx.textAlign='center';
+    ctx.font='bold 18px Orbitron';
+    ctx.fillStyle='#00f5ff'; ctx.shadowColor='#00f5ff'; ctx.shadowBlur=24;
+    ctx.fillText('CUBE',W/2,H/2-58);
+    ctx.fillStyle='#bf00ff'; ctx.shadowColor='#bf00ff';
+    ctx.fillText('LEGENDS',W/2,H/2-30);
+    ctx.shadowBlur=8; ctx.fillStyle='#aaa'; ctx.font='6px "Share Tech Mono"';
+    ctx.fillText('[ SPACE / TAP TO LAUNCH ]',W/2,H/2+18);
+    ctx.fillText('YUSUF EREN ORHAN',W/2,H/2+36);
+    ctx.restore();
+  }
+  if(gameState==='dead'){
+    ctx.save();
+    ctx.fillStyle='rgba(2,3,10,0.65)'; ctx.fillRect(0,0,W,H);
+    ctx.textAlign='center';
+    ctx.font='bold 14px Orbitron';
+    ctx.fillStyle='#ff3355'; ctx.shadowColor='#ff3355'; ctx.shadowBlur=22;
+    ctx.fillText('DESTROYED',W/2,H/2-72);
+    ctx.shadowBlur=10;
+    ctx.font='bold 7px Orbitron';
+    ctx.fillStyle='#00f5ff'; ctx.shadowColor='#00f5ff'; ctx.fillText('SCORE: '+score,   W/2,H/2-38);
+    ctx.fillStyle='#ffd700'; ctx.shadowColor='#ffd700'; ctx.fillText('COINS: +'+sessionCoins,W/2,H/2-18);
+    ctx.fillStyle='#bf00ff'; ctx.shadowColor='#bf00ff'; ctx.fillText('XP: +'+sessionXp, W/2,H/2+2);
+    ctx.fillStyle='#00ff88'; ctx.shadowColor='#00ff88'; ctx.fillText('LEVEL: '+RPG.level,W/2,H/2+22);
+    ctx.fillStyle='#fff'; ctx.shadowColor='#fff'; ctx.shadowBlur=6;
+    ctx.font='6px "Share Tech Mono"';
+    ctx.fillText('[ RETRY ]',W/2,H/2+52);
+    ctx.restore();
+  }
+}
+
+function drawScore(){
+  if(gameState!=='playing') return;
+  ctx.save(); ctx.textAlign='center';
+  ctx.font='bold 20px Orbitron';
+  ctx.fillStyle='#fff'; ctx.shadowColor='#00f5ff'; ctx.shadowBlur=16;
+  ctx.fillText(score, W/2, 42);
+  ctx.restore();
+}
+
+function updateHudLive(){
+  document.getElementById('scoreHud').textContent = score;
+  document.getElementById('coinHud').textContent  = RPG.coins;
+  document.getElementById('xpHud').textContent    = '+' + sessionXp;
+}
+
+function render(){
+  ctx.clearRect(0,0,W,H);
+  drawBG();
+  walls.forEach(drawWall);
+  drawGround();
+  if(gameState!=='dead'||flashTimer>0) drawCubeEntity();
+  drawParticles();
+  drawFlash();
+  drawScore();
+  drawOverlay();
+}
+
+function loop(){
+  update(); render();
+  animFrame = requestAnimationFrame(loop);
+}
+
+// ══════════════════════════════════════════════
+// BOOT
+// ══════════════════════════════════════════════
+initGame();
+buildSkinGrid();
+updateUI();
+loop();
+
+// PWA service worker
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
+</script>
+</body>
+</html>

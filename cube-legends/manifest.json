@@ -1,0 +1,47 @@
+{
+  "name": "Cube Legends - Space",
+  "short_name": "CubeLegends",
+  "description": "A retro space cube runner RPG by YUSF. Dodge walls, collect coins, level up!",
+  "start_url": ".",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#03040a",
+  "theme_color": "#03040a",
+  "categories": ["games"],
+  "lang": "en",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Play Now",
+      "short_name": "Play",
+      "description": "Jump straight into a game",
+      "url": ".?action=play",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+    }
+  ],
+  "screenshots": []
+}

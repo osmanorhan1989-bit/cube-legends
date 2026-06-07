@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" fill="#03040a"/>
+  <!-- Stars -->
+  <circle cx="60" cy="80" r="3" fill="#aaddff" opacity="0.7"/>
+  <circle cx="420" cy="60" r="2" fill="#ffffff" opacity="0.6"/>
+  <circle cx="460" cy="200" r="3" fill="#ffaaee" opacity="0.5"/>
+  <circle cx="30" cy="350" r="2" fill="#aaffee" opacity="0.6"/>
+  <circle cx="490" cy="400" r="2" fill="#aaddff" opacity="0.5"/>
+  <circle cx="100" cy="440" r="3" fill="#ffffff" opacity="0.4"/>
+  <circle cx="380" cy="460" r="2" fill="#ffaaee" opacity="0.6"/>
+  <!-- Glow backdrop -->
+  <ellipse cx="256" cy="256" rx="140" ry="140" fill="rgba(0,245,255,0.04)"/>
+  <!-- Cube body -->
+  <rect x="156" y="156" width="200" height="200" fill="#00f5ff" rx="8"/>
+  <!-- Cube highlight top -->
+  <rect x="156" y="156" width="200" height="70" fill="rgba(255,255,255,0.18)" rx="8"/>
+  <!-- Cube highlight left -->
+  <rect x="156" y="156" width="70" height="200" fill="rgba(255,255,255,0.08)" rx="8"/>
+  <!-- Cube border glow -->
+  <rect x="156" y="156" width="200" height="200" fill="none" stroke="#00f5ff" stroke-width="6" rx="8" opacity="0.9"/>
+  <!-- Corner dots -->
+  <circle cx="172" cy="172" r="8" fill="#00f5ff"/>
+  <circle cx="340" cy="172" r="8" fill="#00f5ff"/>
+  <circle cx="340" cy="340" r="8" fill="#00f5ff"/>
+  <circle cx="172" cy="340" r="8" fill="#00f5ff"/>
+  <!-- Outer glow ring -->
+  <rect x="140" y="140" width="232" height="232" fill="none" stroke="#00f5ff" stroke-width="2" rx="12" opacity="0.3"/>
+  <!-- Bottom grid line -->
+  <line x1="80" y1="430" x2="432" y2="430" stroke="#00f5ff" stroke-width="2" opacity="0.4"/>
+  <!-- "CL" text -->
+  <text x="256" y="510" font-family="monospace" font-size="28" fill="#00f5ff" text-anchor="middle" opacity="0.5" letter-spacing="8">CUBE LEGENDS</text>
+</svg>
